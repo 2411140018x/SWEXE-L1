@@ -3,6 +3,10 @@ class GameIdeasController < ApplicationController
     @game_ideas = GameIdea.order(created_at: :desc)
   end
 
+  def show
+    @game_idea = GameIdea.find(params[:id])
+  end
+
   def new
     @game_idea = GameIdea.new
   end
