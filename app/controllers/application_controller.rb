@@ -4,4 +4,15 @@ class ApplicationController < ActionController::Base
 
   # Changes to the importmap will invalidate the etag for HTML responses
   stale_when_importmap_changes
+
+
+  private
+
+  def valid_request_origin?
+    super || (
+      Rails.env.development? &&
+      request.origin == "https://localhost:3000" &&
+      request.host.end_with?(".app.github.dev")
+    )
+  end
 end
