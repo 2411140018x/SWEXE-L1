@@ -1,5 +1,11 @@
 <h1>ゲームアイデア一覧</h1>
 
+<% if notice.present? %>
+  <p><%= notice %></p>
+<% end %>
+
+<p><%= link_to "新しいアイデアを登録", new_game_idea_path %></p>
+
 <% if @game_ideas.any? %>
   <ul>
     <% @game_ideas.each do |game_idea| %>
