@@ -8,4 +8,5 @@
 <p><%= @game_idea.description %></p>
 
 <p><%= link_to "編集する", edit_game_idea_path(@game_idea) %></p>
+<p><%= button_to "削除する", game_idea_path(@game_idea), method: :delete, form: { data: { turbo_confirm: "このゲームアイデアを削除しますか？" } } %></p>
 <p><%= link_to "一覧に戻る", game_ideas_path %></p>

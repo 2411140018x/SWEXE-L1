@@ -35,6 +35,12 @@ class GameIdeasController < ApplicationController
     end
   end
 
+  def destroy
+    game_idea = GameIdea.find(params[:id])
+    game_idea.destroy!
+    redirect_to game_ideas_path, notice: "ゲームアイデアを削除しました。", status: :see_other
+  end
+
   private
 
   def game_idea_params
