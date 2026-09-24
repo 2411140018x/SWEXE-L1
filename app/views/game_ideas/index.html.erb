@@ -1,0 +1,15 @@
+<h1>ゲームアイデア一覧</h1>
+
+<% if @game_ideas.any? %>
+  <ul>
+    <% @game_ideas.each do |game_idea| %>
+      <li>
+        <h2><%= game_idea.title %></h2>
+        <p>ジャンル：<%= game_idea.genre %></p>
+        <p><%= game_idea.description %></p>
+      </li>
+    <% end %>
+  </ul>
+<% else %>
+  <p>まだゲームアイデアはありません。</p>
+<% end %>
