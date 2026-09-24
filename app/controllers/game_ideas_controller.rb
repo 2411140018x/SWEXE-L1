@@ -21,6 +21,20 @@ class GameIdeasController < ApplicationController
     end
   end
 
+  def edit
+    @game_idea = GameIdea.find(params[:id])
+  end
+
+  def update
+    @game_idea = GameIdea.find(params[:id])
+
+    if @game_idea.update(game_idea_params)
+      redirect_to game_idea_path(@game_idea), notice: "ゲームアイデアを更新しました。"
+    else
+      render :edit, status: :unprocessable_entity
+    end
+  end
+
   private
 
   def game_idea_params
