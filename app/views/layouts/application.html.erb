@@ -1,7 +1,7 @@
 <!DOCTYPE html>
-<html>
+<html lang="ja">
   <head>
-    <title><%= content_for(:title) || "Swexe L1" %></title>
+    <title><%= content_for(:title) || "ゲームアイデアノート" %></title>
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="application-name" content="Swexe L1">
@@ -24,6 +24,21 @@
   </head>
 
   <body>
-    <%= yield %>
+    <header class="site-header">
+      <div class="site-header__inner">
+        <%= link_to "ゲームアイデアノート", game_ideas_path, class: "site-brand" %>
+        <nav aria-label="メインメニュー">
+          <%= link_to "一覧", game_ideas_path %>
+          <%= link_to "新規登録", new_game_idea_path %>
+        </nav>
+      </div>
+    </header>
+    <main class="site-main">
+      <% flash.each do |type, message| %>
+        <% next if message.blank? %>
+        <div class="flash <%= type.to_s == "notice" ? "flash--success" : "flash--error" %>" role="<%= type.to_s == "notice" ? "status" : "alert" %>"><%= message %></div>
+      <% end %>
+      <%= yield %>
+    </main>
   </body>
 </html>

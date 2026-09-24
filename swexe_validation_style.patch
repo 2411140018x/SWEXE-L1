@@ -1,0 +1,397 @@
+diff --git a/app/models/game_idea.rb b/app/models/game_idea.rb
+--- a/app/models/game_idea.rb
++++ b/app/models/game_idea.rb
+@@ -1,3 +1,6 @@
+ class GameIdea < ApplicationRecord
+   validates :title, :genre, :description, presence: true
++  validates :title, length: { maximum: 80 }
++  validates :genre, length: { maximum: 40 }
++  validates :description, length: { maximum: 1000 }
+ end
+diff --git a/app/controllers/game_ideas_controller.rb b/app/controllers/game_ideas_controller.rb
+--- a/app/controllers/game_ideas_controller.rb
++++ b/app/controllers/game_ideas_controller.rb
+@@ -13,10 +13,10 @@
+ 
+   def create
+     @game_idea = GameIdea.new(game_idea_params)
+-
+     if @game_idea.save
+       redirect_to game_ideas_path, notice: "ゲームアイデアを登録しました。"
+     else
++      flash.now[:alert] = "入力内容を確認してください。"
+       render :new, status: :unprocessable_entity
+     end
+   end
+@@ -27,10 +27,10 @@
+ 
+   def update
+     @game_idea = GameIdea.find(params[:id])
+-
+     if @game_idea.update(game_idea_params)
+       redirect_to game_idea_path(@game_idea), notice: "ゲームアイデアを更新しました。"
+     else
++      flash.now[:alert] = "入力内容を確認してください。"
+       render :edit, status: :unprocessable_entity
+     end
+   end
+diff --git a/app/views/game_ideas/index.html.erb b/app/views/game_ideas/index.html.erb
+--- a/app/views/game_ideas/index.html.erb
++++ b/app/views/game_ideas/index.html.erb
+@@ -1,21 +1,27 @@
+-<h1>ゲームアイデア一覧</h1>
+-
+-<% if notice.present? %>
+-  <p><%= notice %></p>
+-<% end %>
+-
+-<p><%= link_to "新しいアイデアを登録", new_game_idea_path %></p>
++<div class="page-heading">
++  <div>
++    <p class="eyebrow">MY IDEAS</p>
++    <h1>ゲームアイデア一覧</h1>
++    <p class="lead">思いついたアイデアを、ここにまとめておきましょう。</p>
++  </div>
++  <%= link_to "＋ 新しいアイデアを登録", new_game_idea_path, class: "button button--primary" %>
++</div>
+ 
+ <% if @game_ideas.any? %>
+-  <ul>
++  <ul class="idea-grid">
+     <% @game_ideas.each do |game_idea| %>
+-      <li>
+-        <h2><%= link_to game_idea.title, game_idea_path(game_idea) %></h2>
+-        <p>ジャンル：<%= game_idea.genre %></p>
+-        <p><%= game_idea.description %></p>
++      <li class="idea-card">
++        <span class="genre-tag"><%= game_idea.genre %></span>
++        <h2><%= link_to game_idea.title, game_idea_path(game_idea), class: "card-link" %></h2>
++        <p class="card-description"><%= truncate(game_idea.description, length: 130) %></p>
++        <%= link_to "詳しく見る →", game_idea_path(game_idea), class: "text-link" %>
+       </li>
+     <% end %>
+   </ul>
+ <% else %>
+-  <p>まだゲームアイデアはありません。</p>
++  <div class="empty-state">
++    <h2>まだアイデアがありません</h2>
++    <p>最初のゲームアイデアを登録してみましょう。</p>
++    <%= link_to "アイデアを登録する", new_game_idea_path, class: "button button--primary" %>
++  </div>
+ <% end %>
+diff --git a/app/views/game_ideas/new.html.erb b/app/views/game_ideas/new.html.erb
+--- a/app/views/game_ideas/new.html.erb
++++ b/app/views/game_ideas/new.html.erb
+@@ -1,30 +1,11 @@
+-<h1>ゲームアイデアを登録</h1>
++<div class="page-heading">
++  <div>
++    <p class="eyebrow">NEW IDEA</p>
++    <h1>ゲームアイデアを登録</h1>
++    <p class="lead">タイトル・ジャンル・概要を入力してください。</p>
++  </div>
++</div>
+ 
+-<% if @game_idea.errors.any? %>
+-  <div role="alert">
+-    <p>入力内容を確認してください。</p>
+-    <ul>
+-      <% @game_idea.errors.full_messages.each do |message| %>
+-        <li><%= message %></li>
+-      <% end %>
+-    </ul>
+-  </div>
+-<% end %>
+-
+-<%= form_with model: @game_idea do |form| %>
+-  <p>
+-    <%= form.label :title, "タイトル" %><br>
+-    <%= form.text_field :title %>
+-  </p>
+-  <p>
+-    <%= form.label :genre, "ジャンル" %><br>
+-    <%= form.text_field :genre %>
+-  </p>
+-  <p>
+-    <%= form.label :description, "概要" %><br>
+-    <%= form.text_area :description, rows: 5 %>
+-  </p>
+-  <%= form.submit "登録する" %>
+-<% end %>
+-
+-<p><%= link_to "一覧に戻る", game_ideas_path %></p>
++<section class="panel">
++  <%= render "form", game_idea: @game_idea, submit_label: "登録する", back_path: game_ideas_path %>
++</section>
+diff --git a/app/views/game_ideas/edit.html.erb b/app/views/game_ideas/edit.html.erb
+--- a/app/views/game_ideas/edit.html.erb
++++ b/app/views/game_ideas/edit.html.erb
+@@ -1,30 +1,11 @@
+-<h1>ゲームアイデアを編集</h1>
++<div class="page-heading">
++  <div>
++    <p class="eyebrow">EDIT IDEA</p>
++    <h1>ゲームアイデアを編集</h1>
++    <p class="lead">内容を変更して保存できます。</p>
++  </div>
++</div>
+ 
+-<% if @game_idea.errors.any? %>
+-  <div role="alert">
+-    <p>入力内容を確認してください。</p>
+-    <ul>
+-      <% @game_idea.errors.full_messages.each do |message| %>
+-        <li><%= message %></li>
+-      <% end %>
+-    </ul>
+-  </div>
+-<% end %>
+-
+-<%= form_with model: @game_idea do |form| %>
+-  <p>
+-    <%= form.label :title, "タイトル" %><br>
+-    <%= form.text_field :title %>
+-  </p>
+-  <p>
+-    <%= form.label :genre, "ジャンル" %><br>
+-    <%= form.text_field :genre %>
+-  </p>
+-  <p>
+-    <%= form.label :description, "概要" %><br>
+-    <%= form.text_area :description, rows: 5 %>
+-  </p>
+-  <%= form.submit "更新する" %>
+-<% end %>
+-
+-<p><%= link_to "詳細に戻る", game_idea_path(@game_idea) %></p>
++<section class="panel">
++  <%= render "form", game_idea: @game_idea, submit_label: "更新する", back_path: game_idea_path(@game_idea) %>
++</section>
+diff --git a/app/views/game_ideas/show.html.erb b/app/views/game_ideas/show.html.erb
+--- a/app/views/game_ideas/show.html.erb
++++ b/app/views/game_ideas/show.html.erb
+@@ -1,12 +1,22 @@
+-<h1><%= @game_idea.title %></h1>
++<div class="page-heading">
++  <div>
++    <p class="eyebrow">IDEA DETAILS</p>
++    <h1><%= @game_idea.title %></h1>
++  </div>
++  <%= link_to "← 一覧に戻る", game_ideas_path, class: "button button--subtle" %>
++</div>
+ 
+-<% if notice.present? %>
+-  <p><%= notice %></p>
+-<% end %>
+-
+-<p>ジャンル：<%= @game_idea.genre %></p>
+-<p><%= @game_idea.description %></p>
+-
+-<p><%= link_to "編集する", edit_game_idea_path(@game_idea) %></p>
+-<p><%= button_to "削除する", game_idea_path(@game_idea), method: :delete, form: { data: { turbo_confirm: "このゲームアイデアを削除しますか？" } } %></p>
+-<p><%= link_to "一覧に戻る", game_ideas_path %></p>
++<article class="panel detail-panel">
++  <div class="detail-section">
++    <h2>ジャンル</h2>
++    <span class="genre-tag"><%= @game_idea.genre %></span>
++  </div>
++  <div class="detail-section">
++    <h2>概要</h2>
++    <div class="description"><%= simple_format(@game_idea.description) %></div>
++  </div>
++  <div class="form-actions detail-actions">
++    <%= link_to "編集する", edit_game_idea_path(@game_idea), class: "button button--primary" %>
++    <%= button_to "削除する", game_idea_path(@game_idea), method: :delete, class: "button button--danger", form: { data: { turbo_confirm: "このゲームアイデアを削除しますか？" } } %>
++  </div>
++</article>
+diff --git a/app/views/game_ideas/_form.html.erb b/app/views/game_ideas/_form.html.erb
+new file mode 100644
+--- /dev/null
++++ b/app/views/game_ideas/_form.html.erb
+@@ -0,0 +1,36 @@
++<% if game_idea.errors.any? %>
++  <div class="error-summary" role="alert">
++    <strong>入力内容にエラーがあります</strong>
++    <ul>
++      <% game_idea.errors.full_messages.each do |message| %>
++        <li><%= message %></li>
++      <% end %>
++    </ul>
++  </div>
++<% end %>
++
++<%= form_with model: game_idea, class: "idea-form" do |form| %>
++  <div class="form-field">
++    <%= form.label :title, "タイトル" %>
++    <%= form.text_field :title, maxlength: 80, placeholder: "例：時間を巻き戻すパズル", aria: { invalid: game_idea.errors[:title].any?, describedby: ("title-error" if game_idea.errors[:title].any?) } %>
++    <% if game_idea.errors[:title].any? %><p id="title-error" class="field-error"><%= game_idea.errors.full_messages_for(:title).join("、") %></p><% end %>
++  </div>
++
++  <div class="form-field">
++    <%= form.label :genre, "ジャンル" %>
++    <%= form.text_field :genre, maxlength: 40, placeholder: "例：アドベンチャー", aria: { invalid: game_idea.errors[:genre].any?, describedby: ("genre-error" if game_idea.errors[:genre].any?) } %>
++    <% if game_idea.errors[:genre].any? %><p id="genre-error" class="field-error"><%= game_idea.errors.full_messages_for(:genre).join("、") %></p><% end %>
++  </div>
++
++  <div class="form-field">
++    <%= form.label :description, "概要" %>
++    <%= form.text_area :description, rows: 7, maxlength: 1000, placeholder: "どんなゲームか、自由に書いてください。", aria: { invalid: game_idea.errors[:description].any?, describedby: ("description-error" if game_idea.errors[:description].any?) } %>
++    <p class="form-hint">1,000文字以内</p>
++    <% if game_idea.errors[:description].any? %><p id="description-error" class="field-error"><%= game_idea.errors.full_messages_for(:description).join("、") %></p><% end %>
++  </div>
++
++  <div class="form-actions">
++    <%= form.submit submit_label, class: "button button--primary" %>
++    <%= link_to "キャンセル", back_path, class: "button button--subtle" %>
++  </div>
++<% end %>
+diff --git a/app/views/layouts/application.html.erb b/app/views/layouts/application.html.erb
+--- a/app/views/layouts/application.html.erb
++++ b/app/views/layouts/application.html.erb
+@@ -1,7 +1,7 @@
+ <!DOCTYPE html>
+-<html>
++<html lang="ja">
+   <head>
+-    <title><%= content_for(:title) || "Swexe L1" %></title>
++    <title><%= content_for(:title) || "ゲームアイデアノート" %></title>
+     <meta name="viewport" content="width=device-width,initial-scale=1">
+     <meta name="apple-mobile-web-app-capable" content="yes">
+     <meta name="application-name" content="Swexe L1">
+@@ -24,6 +24,21 @@
+   </head>
+ 
+   <body>
+-    <%= yield %>
++    <header class="site-header">
++      <div class="site-header__inner">
++        <%= link_to "ゲームアイデアノート", game_ideas_path, class: "site-brand" %>
++        <nav aria-label="メインメニュー">
++          <%= link_to "一覧", game_ideas_path %>
++          <%= link_to "新規登録", new_game_idea_path %>
++        </nav>
++      </div>
++    </header>
++    <main class="site-main">
++      <% flash.each do |type, message| %>
++        <% next if message.blank? %>
++        <div class="flash <%= type.to_s == "notice" ? "flash--success" : "flash--error" %>" role="<%= type.to_s == "notice" ? "status" : "alert" %>"><%= message %></div>
++      <% end %>
++      <%= yield %>
++    </main>
+   </body>
+ </html>
+diff --git a/app/assets/stylesheets/application.css b/app/assets/stylesheets/application.css
+--- a/app/assets/stylesheets/application.css
++++ b/app/assets/stylesheets/application.css
+@@ -1,10 +1,72 @@
+-/*
+- * This is a manifest file that'll be compiled into application.css.
+- *
+- * With Propshaft, assets are served efficiently without preprocessing steps. You can still include
+- * application-wide styles in this file, but keep in mind that CSS precedence will follow the standard
+- * cascading order, meaning styles declared later in the document or manifest will override earlier ones,
+- * depending on specificity.
+- *
+- * Consider organizing styles into separate files for maintainability.
+- */
++:root {
++  color-scheme: light;
++  font-family: "Hiragino Kaku Gothic ProN", "Yu Gothic", Meiryo, sans-serif;
++  color: #202a3a;
++  background: #f5f7fb;
++}
++* { box-sizing: border-box; }
++body { margin: 0; line-height: 1.7; }
++a { color: #2754bb; }
++a:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visible {
++  outline: 3px solid #88aaff;
++  outline-offset: 2px;
++}
++.site-header { background: #fff; border-bottom: 1px solid #e4e9f2; }
++.site-header__inner { max-width: 1024px; min-height: 68px; margin: auto; padding: 0 24px; display: flex; align-items: center; justify-content: space-between; gap: 18px; }
++.site-brand { color: #1d376c; text-decoration: none; font-size: 1.1rem; font-weight: 800; }
++.site-header nav { display: flex; gap: 20px; }
++.site-header nav a { text-decoration: none; font-weight: 600; }
++.site-main { max-width: 1024px; margin: 0 auto; padding: 38px 24px 80px; }
++.page-heading { display: flex; justify-content: space-between; align-items: end; gap: 24px; margin-bottom: 28px; }
++.page-heading h1 { margin: 4px 0 8px; font-size: clamp(1.6rem, 4vw, 2.2rem); line-height: 1.4; overflow-wrap: anywhere; }
++.eyebrow { margin: 0; color: #3e66bd; font-size: .75rem; font-weight: 800; letter-spacing: .14em; }
++.lead { margin: 0; color: #63718a; }
++.button { display: inline-flex; justify-content: center; align-items: center; min-height: 44px; padding: 9px 18px; border: 1px solid transparent; border-radius: 9px; font: inherit; font-weight: 700; line-height: 1.45; text-decoration: none; cursor: pointer; white-space: nowrap; }
++.button--primary { color: #fff; background: #2d59bd; }
++.button--primary:hover { background: #214aab; }
++.button--subtle { color: #2d59bd; background: #eef3fc; }
++.button--subtle:hover { background: #e2eafb; }
++.button--danger { color: #b42f42; background: #fff; border-color: #e4aeb6; }
++.button--danger:hover { background: #fff1f3; }
++.panel, .idea-card, .empty-state { background: #fff; border: 1px solid #e1e7f0; border-radius: 15px; box-shadow: 0 5px 20px rgba(28, 44, 79, .04); }
++.panel { padding: clamp(22px, 4vw, 38px); }
++.idea-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 280px), 1fr)); gap: 18px; padding: 0; list-style: none; }
++.idea-card { padding: 24px; display: flex; flex-direction: column; align-items: flex-start; min-height: 240px; }
++.idea-card h2 { margin: 15px 0 8px; font-size: 1.2rem; line-height: 1.5; overflow-wrap: anywhere; }
++.card-link { color: #202a3a; text-decoration: none; }
++.card-link:hover, .text-link:hover { text-decoration: underline; }
++.card-description { color: #56647c; margin: 0 0 18px; overflow-wrap: anywhere; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
++.text-link { margin-top: auto; text-decoration: none; font-weight: 700; }
++.genre-tag { display: inline-block; max-width: 100%; padding: 3px 11px; border-radius: 100px; background: #eaf0ff; color: #3053a0; font-size: .84rem; font-weight: 700; overflow-wrap: anywhere; }
++.empty-state { padding: 60px 24px; text-align: center; }
++.empty-state h2 { margin: 0; }
++.empty-state p { color: #63718a; }
++.idea-form { max-width: 650px; }
++.form-field { margin-bottom: 24px; }
++.form-field label { display: block; margin-bottom: 7px; font-weight: 700; }
++.form-field input, .form-field textarea, .field_with_errors input, .field_with_errors textarea { display: block; width: 100%; padding: 11px 13px; border: 1px solid #bfcadb; border-radius: 8px; background: #fff; color: #202a3a; font: inherit; }
++.form-field textarea { resize: vertical; min-height: 150px; }
++.form-field input[aria-invalid="true"], .form-field textarea[aria-invalid="true"] { border-color: #bf4153; }
++.form-hint { margin: 5px 0 0; color: #63718a; font-size: .86rem; }
++.field-error { color: #b0273c; font-size: .88rem; margin: 6px 0 0; }
++.form-actions { display: flex; align-items: center; flex-wrap: wrap; gap: 12px; margin-top: 30px; }
++.form-actions form { margin: 0; }
++.flash { padding: 13px 18px; margin-bottom: 24px; border-radius: 9px; font-weight: 600; }
++.flash--success { color: #17563f; background: #e8f6ed; border: 1px solid #a4d9ba; }
++.flash--error, .error-summary { color: #952337; background: #fff0f1; border: 1px solid #e6abb5; }
++.error-summary { padding: 14px 18px; border-radius: 9px; margin-bottom: 24px; }
++.error-summary ul { margin: 6px 0 0; padding-left: 22px; }
++.detail-panel { max-width: 760px; }
++.detail-section + .detail-section { border-top: 1px solid #e7ebf2; margin-top: 26px; padding-top: 26px; }
++.detail-section h2 { margin: 0 0 10px; font-size: 1rem; color: #63718a; }
++.description { overflow-wrap: anywhere; white-space: normal; }
++.description p { margin: 0 0 1em; }
++.detail-actions { border-top: 1px solid #e7ebf2; padding-top: 24px; }
++@media (max-width: 620px) {
++  .site-header__inner { min-height: 64px; padding: 0 16px; }
++  .site-header nav { gap: 10px; font-size: .88rem; }
++  .site-main { padding: 26px 16px 60px; }
++  .page-heading { align-items: flex-start; flex-direction: column; gap: 16px; }
++  .page-heading > .button { width: 100%; }
++  .idea-grid { margin-top: 0; }
++}
+diff --git a/config/application.rb b/config/application.rb
+--- a/config/application.rb
++++ b/config/application.rb
+@@ -10,6 +10,7 @@
+   class Application < Rails::Application
+     # Initialize configuration defaults for originally generated Rails version.
+     config.load_defaults 8.1
++    config.i18n.default_locale = :ja
+ 
+     # Please, add to the `ignore` list any other `lib` subdirectories that do
+     # not contain `.rb` files, or that should not be reloaded or eager loaded.
+diff --git a/config/locales/ja.yml b/config/locales/ja.yml
+new file mode 100644
+--- /dev/null
++++ b/config/locales/ja.yml
+@@ -0,0 +1,12 @@
++ja:
++  activerecord:
++    attributes:
++      game_idea:
++        title: "タイトル"
++        genre: "ジャンル"
++        description: "概要"
++  errors:
++    format: "%{attribute}%{message}"
++    messages:
++      blank: "を入力してください"
++      too_long: "は%{count}文字以内で入力してください"

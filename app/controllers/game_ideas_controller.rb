@@ -13,10 +13,10 @@ class GameIdeasController < ApplicationController
 
   def create
     @game_idea = GameIdea.new(game_idea_params)
-
     if @game_idea.save
       redirect_to game_ideas_path, notice: "ゲームアイデアを登録しました。"
     else
+      flash.now[:alert] = "入力内容を確認してください。"
       render :new, status: :unprocessable_entity
     end
   end
@@ -27,10 +27,10 @@ class GameIdeasController < ApplicationController
 
   def update
     @game_idea = GameIdea.find(params[:id])
-
     if @game_idea.update(game_idea_params)
       redirect_to game_idea_path(@game_idea), notice: "ゲームアイデアを更新しました。"
     else
+      flash.now[:alert] = "入力内容を確認してください。"
       render :edit, status: :unprocessable_entity
     end
   end

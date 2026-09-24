@@ -1,12 +1,22 @@
-<h1><%= @game_idea.title %></h1>
+<div class="page-heading">
+  <div>
+    <p class="eyebrow">IDEA DETAILS</p>
+    <h1><%= @game_idea.title %></h1>
+  </div>
+  <%= link_to "← 一覧に戻る", game_ideas_path, class: "button button--subtle" %>
+</div>
 
-<% if notice.present? %>
-  <p><%= notice %></p>
-<% end %>
-
-<p>ジャンル：<%= @game_idea.genre %></p>
-<p><%= @game_idea.description %></p>
-
-<p><%= link_to "編集する", edit_game_idea_path(@game_idea) %></p>
-<p><%= button_to "削除する", game_idea_path(@game_idea), method: :delete, form: { data: { turbo_confirm: "このゲームアイデアを削除しますか？" } } %></p>
-<p><%= link_to "一覧に戻る", game_ideas_path %></p>
+<article class="panel detail-panel">
+  <div class="detail-section">
+    <h2>ジャンル</h2>
+    <span class="genre-tag"><%= @game_idea.genre %></span>
+  </div>
+  <div class="detail-section">
+    <h2>概要</h2>
+    <div class="description"><%= simple_format(@game_idea.description) %></div>
+  </div>
+  <div class="form-actions detail-actions">
+    <%= link_to "編集する", edit_game_idea_path(@game_idea), class: "button button--primary" %>
+    <%= button_to "削除する", game_idea_path(@game_idea), method: :delete, class: "button button--danger", form: { data: { turbo_confirm: "このゲームアイデアを削除しますか？" } } %>
+  </div>
+</article>

@@ -1,21 +1,27 @@
-<h1>ゲームアイデア一覧</h1>
-
-<% if notice.present? %>
-  <p><%= notice %></p>
-<% end %>
-
-<p><%= link_to "新しいアイデアを登録", new_game_idea_path %></p>
+<div class="page-heading">
+  <div>
+    <p class="eyebrow">MY IDEAS</p>
+    <h1>ゲームアイデア一覧</h1>
+    <p class="lead">思いついたアイデアを、ここにまとめておきましょう。</p>
+  </div>
+  <%= link_to "＋ 新しいアイデアを登録", new_game_idea_path, class: "button button--primary" %>
+</div>
 
 <% if @game_ideas.any? %>
-  <ul>
+  <ul class="idea-grid">
     <% @game_ideas.each do |game_idea| %>
-      <li>
-        <h2><%= link_to game_idea.title, game_idea_path(game_idea) %></h2>
-        <p>ジャンル：<%= game_idea.genre %></p>
-        <p><%= game_idea.description %></p>
+      <li class="idea-card">
+        <span class="genre-tag"><%= game_idea.genre %></span>
+        <h2><%= link_to game_idea.title, game_idea_path(game_idea), class: "card-link" %></h2>
+        <p class="card-description"><%= truncate(game_idea.description, length: 130) %></p>
+        <%= link_to "詳しく見る →", game_idea_path(game_idea), class: "text-link" %>
       </li>
     <% end %>
   </ul>
 <% else %>
-  <p>まだゲームアイデアはありません。</p>
+  <div class="empty-state">
+    <h2>まだアイデアがありません</h2>
+    <p>最初のゲームアイデアを登録してみましょう。</p>
+    <%= link_to "アイデアを登録する", new_game_idea_path, class: "button button--primary" %>
+  </div>
 <% end %>

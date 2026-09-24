@@ -1,0 +1,36 @@
+<% if game_idea.errors.any? %>
+  <div class="error-summary" role="alert">
+    <strong>入力内容にエラーがあります</strong>
+    <ul>
+      <% game_idea.errors.full_messages.each do |message| %>
+        <li><%= message %></li>
+      <% end %>
+    </ul>
+  </div>
+<% end %>
+
+<%= form_with model: game_idea, class: "idea-form" do |form| %>
+  <div class="form-field">
+    <%= form.label :title, "タイトル" %>
+    <%= form.text_field :title, maxlength: 80, placeholder: "例：時間を巻き戻すパズル", aria: { invalid: game_idea.errors[:title].any?, describedby: ("title-error" if game_idea.errors[:title].any?) } %>
+    <% if game_idea.errors[:title].any? %><p id="title-error" class="field-error"><%= game_idea.errors.full_messages_for(:title).join("、") %></p><% end %>
+  </div>
+
+  <div class="form-field">
+    <%= form.label :genre, "ジャンル" %>
+    <%= form.text_field :genre, maxlength: 40, placeholder: "例：アドベンチャー", aria: { invalid: game_idea.errors[:genre].any?, describedby: ("genre-error" if game_idea.errors[:genre].any?) } %>
+    <% if game_idea.errors[:genre].any? %><p id="genre-error" class="field-error"><%= game_idea.errors.full_messages_for(:genre).join("、") %></p><% end %>
+  </div>
+
+  <div class="form-field">
+    <%= form.label :description, "概要" %>
+    <%= form.text_area :description, rows: 7, maxlength: 1000, placeholder: "どんなゲームか、自由に書いてください。", aria: { invalid: game_idea.errors[:description].any?, describedby: ("description-error" if game_idea.errors[:description].any?) } %>
+    <p class="form-hint">1,000文字以内</p>
+    <% if game_idea.errors[:description].any? %><p id="description-error" class="field-error"><%= game_idea.errors.full_messages_for(:description).join("、") %></p><% end %>
+  </div>
+
+  <div class="form-actions">
+    <%= form.submit submit_label, class: "button button--primary" %>
+    <%= link_to "キャンセル", back_path, class: "button button--subtle" %>
+  </div>
+<% end %>
