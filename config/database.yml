@@ -36,3 +36,9 @@ production:
     username: mysite_65fy_user
     password: 7rRBdk3R1aejFOK53DCXkRCEE9AHRYHs
     url: postgresql://mysite_65fy_user:7rRBdk3R1aejFOK53DCXkRCEE9AHRYHs@dpg-davhffc9v7es73fqobmg-a/mysite_65fy
+  cache:
+    <<: *primary_production
+  queue:
+    <<: *primary_production
+  cable:
+    <<: *primary_production
